@@ -3,7 +3,18 @@ import os
 import pytesseract
 from PIL import Image as img
 import re
-# from PIL import ImageEnhance
+import cv2
+
+
+#to do:
+#read pytesseract documentation
+#dynamically allocate the section of the characters 
+#dynamically fill the age
+#enhance filter to detect character
+#browse a file
+
+
+
 
 def main(page:Page):
     page.scroll = "auto"
@@ -21,11 +32,19 @@ def main(page:Page):
   
     #function to process img
     def processimg(e):
-        img_pro = img.open(img_loc.value)
-        # enhancer = ImageEnhance.Contrast(img_pro)
-        # image = enhancer.enhance(2)
-        text = pytesseract.image_to_string(img_pro,lang="eng")
-        
+        #image prepocess using opencv section
+        img = cv2.imread(img_loc.value)
+        # img_pro = img.open(img_loc.value)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+        #Use the correct page segmentation mode
+        text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+        # text = pytesseract.image_to_string(gray, lang='eng')
+        # text = pytesseract.image_to       _string(img,lang="eng")
+        #Use region of interest (ROI) detection
+
+
         print(text)
 
         with open("result.txt", "w") as file:
@@ -49,19 +68,19 @@ def main(page:Page):
                 current_section = "section_8"
                 i += 1
             elif "Mga Pangalan" in line:
-                current_section = "section_11"
-                i += 1
-            elif "Gitnang Apelyido" in line:
                 current_section = "section_14"
                 i += 1
+            elif "Gitnang Apelyido" in line:
+                current_section = "section_17"
+                i += 1
             elif "Petsa ng Kapanganakan" in line:
-                current_section = "section_16"
+                current_section = "section_20"
                 i += 1
             elif "Tirahan" in line:
-                current_section = "section_19"
+                current_section = "section_23"
                 i += 1
             elif len(line.strip()) == 16:
-                current_section = "section_5"
+                current_section = "section_8"
                 i += 1
             else:
                 current_section = f"section_{i}"
@@ -71,12 +90,12 @@ def main(page:Page):
 
     
             #SET EACH SECTIONS
-        id_num.value = sections['section_5']
-        last_name.value = sections['section_8']
-        first_name.value = sections['section_11']
-        middle_name.value = sections['section_14']
-        dob.value = sections['section_16']
-        address.value = sections['section_19']
+        id_num.value = sections['section_6']
+        last_name.value = sections['section_10']
+        first_name.value = sections['section_14']
+        middle_name.value = sections['section_17']
+        dob.value = sections['section_20']
+        address.value = sections['section_23']
         # img_preview.src = f"{os.getcwd()/{img_loc.value}}"
 
         # page.snack_bar  = Snackbar(
@@ -106,3 +125,4 @@ def main(page:Page):
     )
 
 flet.app(target=main)
+
