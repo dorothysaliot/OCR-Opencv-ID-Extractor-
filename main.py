@@ -7,23 +7,11 @@ import cv2
 import shutil
 
 
-
-
-#to do:
-#read pytesseract documentation
-#dynamically allocate the section of the characters 
-#dynamically fill the age
-#enhance filter to detect character
-#file picker
-
-
-
 #main function
 def main(page:Page):
     page.scroll = "auto"
 
     #text fields
-    # img_loc = TextField(label="Image Name")
     id_num = TextField(label="ID Number")
     last_name = TextField(label="Last Name")
     first_name = TextField(label="First Name")
@@ -31,8 +19,6 @@ def main(page:Page):
     dob = TextField(label="Date of Birth")
     address = TextField(label="Address")
 
-    #preview image
-    # img_preview = Image(src=False,width=150,height=150)
   
     #function for file picker
     location_file = Text("")
@@ -47,38 +33,20 @@ def main(page:Page):
     page.overlay.append(MyPick)
 
 
-
-
-
     #function to process image
     def processimg(e):
-        #image prepocess using opencv section
-        # img = cv2.imread(img_loc.value)
-        # file = str(location_file)
         file = str(location_file.value)
-
+        #pre process image using opencv
         img = cv2.imread(file)
-        # img_pro = img.open(img_loc.value)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
-        #Use the correct page segmentation mode
+        #image to text using pytesseract 
+        #Use the correct page segmentation mode 
         text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
-
-
-        # load image from directory 
-        # jpgfile = img.open(location_file.value)
-
-        # text = pytesseract.image_to_string(jpgfile, lang='eng', config='--psm 6')
-
-
-        # text = pytesseract.image_to_string(gray, lang='eng')
-        # text = pytesseract.image_to       _string(img,lang="eng")
-        #Use region of interest (ROI) detection
-
 
         print(text)
 
+        #write the file from extracted data
         with open("result.txt", "w") as file:
             file.write(text)
 
@@ -86,7 +54,7 @@ def main(page:Page):
             text = file.read()
 
 
-        #create sections
+        #create sections to identify region of interest
         sections ={}
         lines = text.split("\n")
         current_section = ''
@@ -121,34 +89,27 @@ def main(page:Page):
         print(sections)
 
     
-            #SET EACH SECTIONS
+        
         id_num.value = sections['section_6']
         last_name.value = sections['section_10']
         first_name.value = sections['section_14']
         middle_name.value = sections['section_17']
         dob.value = sections['section_20']
         address.value = sections['section_23']
-        # img_preview.src = f"{os.getcwd()/{img_loc.value}}"
-
-        # page.snack_bar  = Snackbar(
-        #     Text("Success get from image ", size=30),
-        #     bgcolor="green"
-        #     )
-        # page.snack_bar.open = True
+       
         page.update()
 
 
+    #add the graphical user interface to the page
     page.add(
         Column([
-            # img_loc,
-            ElevatedButton("Insert File", 
+           
+            ElevatedButton("Choose File", 
                            on_click=lambda _: MyPick.pick_files()),
             ElevatedButton("Process your image",
                        bgcolor="blue",
                        color="white",
                        on_click=processimg),
-            # Text("Your Result in Image", weight="bold"),
-            # img_preview,
             location_file,
             id_num,
             last_name,
