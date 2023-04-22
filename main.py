@@ -4,6 +4,9 @@ import pytesseract
 from PIL import Image as img
 import re
 import cv2
+import shutil
+
+
 
 
 #to do:
@@ -11,15 +14,16 @@ import cv2
 #dynamically allocate the section of the characters 
 #dynamically fill the age
 #enhance filter to detect character
-#browse a file
+#file picker
 
 
 
-
+#main function
 def main(page:Page):
     page.scroll = "auto"
 
-    img_loc = TextField(label="Image Name")
+    #text fields
+    # img_loc = TextField(label="Image Name")
     id_num = TextField(label="ID Number")
     last_name = TextField(label="Last Name")
     first_name = TextField(label="First Name")
@@ -28,18 +32,44 @@ def main(page:Page):
     address = TextField(label="Address")
 
     #preview image
-    img_preview = Image(src=False,width=150,height=150)
+    # img_preview = Image(src=False,width=150,height=150)
   
-    #function to process img
+    #function for file picker
+    location_file = Text("")
+
+    def dialog_picker(e:FilePickerResultEvent):
+        for x in e.files:
+            shutil.copy(x.name, f"myUploads/{x.name}")
+            location_file.value = f"myUploads/{x.name}"
+            location_file.update()
+    
+    MyPick = FilePicker(on_result=dialog_picker)
+    page.overlay.append(MyPick)
+
+
+
+
+
+    #function to process image
     def processimg(e):
         #image prepocess using opencv section
-        img = cv2.imread(img_loc.value)
+        # img = cv2.imread(img_loc.value)
+        file = str(location_file)
+        # img = cv2.imread(file)
         # img_pro = img.open(img_loc.value)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
         #Use the correct page segmentation mode
-        text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+        # text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+
+
+        # load image from directory 
+        jpgfile = img.open(location_file.value)
+
+        text = pytesseract.image_to_string(jpgfile, lang='eng', config='--psm 6')
+
+
         # text = pytesseract.image_to_string(gray, lang='eng')
         # text = pytesseract.image_to       _string(img,lang="eng")
         #Use region of interest (ROI) detection
@@ -108,13 +138,16 @@ def main(page:Page):
 
     page.add(
         Column([
-            img_loc,
+            # img_loc,
+            ElevatedButton("Insert File", 
+                           on_click=lambda _: MyPick.pick_files()),
             ElevatedButton("Process your image",
                        bgcolor="blue",
                        color="white",
                        on_click=processimg),
             # Text("Your Result in Image", weight="bold"),
             # img_preview,
+            location_file,
             id_num,
             last_name,
             first_name,
