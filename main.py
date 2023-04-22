@@ -54,20 +54,22 @@ def main(page:Page):
     def processimg(e):
         #image prepocess using opencv section
         # img = cv2.imread(img_loc.value)
-        file = str(location_file)
-        # img = cv2.imread(file)
+        # file = str(location_file)
+        file = str(location_file.value)
+
+        img = cv2.imread(file)
         # img_pro = img.open(img_loc.value)
-        # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        # thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
         #Use the correct page segmentation mode
-        # text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
+        text = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6')
 
 
         # load image from directory 
-        jpgfile = img.open(location_file.value)
+        # jpgfile = img.open(location_file.value)
 
-        text = pytesseract.image_to_string(jpgfile, lang='eng', config='--psm 6')
+        # text = pytesseract.image_to_string(jpgfile, lang='eng', config='--psm 6')
 
 
         # text = pytesseract.image_to_string(gray, lang='eng')
